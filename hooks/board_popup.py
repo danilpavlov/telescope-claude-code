@@ -79,12 +79,16 @@ DEFAULT_PALETTE = {
     "promptBorder": "#888888",
     "selectionBg": "#3A3A3A",
 }
+# The oldest fzf the window can be drawn with: 0.71 brought --id-nth, which keeps the selection on
+# its session while the list is reread
+MIN_FZF = (0, 71)
 # Exit codes of run by which the mod learns that the window did not open, and draws its pane
 EXIT_NO_TMUX = 3
 EXIT_NO_FZF = 4
 EXIT_NO_POPUP = 5
 
 _HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+_VERSION = re.compile(r"(\d+)\.(\d+)")
 _THEME_NAME = re.compile(r"^[A-Za-z0-9_-]+$")
 _CUSTOM = "custom:"
 
@@ -437,6 +441,21 @@ def launch_fzf(argv, socket_path, action):
     return process.returncode, out.decode("utf-8", "replace"), err.decode("utf-8", "replace")
 
 
+def parse_fzf_version(text):
+    """The (major, minor) of what `fzf --version` printed, or None when it cannot be read."""
+    found = _VERSION.search(text)
+    return (int(found.group(1)), int(found.group(2))) if found else None
+
+
+def fzf_version():
+    """The version of the fzf in PATH, or None when it does not say."""
+    try:
+        said = subprocess.run(["fzf", "--version"], capture_output=True, text=True, timeout=5, check=False)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return parse_fzf_version(said.stdout)
+
+
 def call_tmux(argv):
     return subprocess.run(argv, check=False).returncode
 
@@ -460,7 +479,7 @@ def _terminal_columns():
     return shutil.get_terminal_size((COLUMNS_DEFAULT, 40)).columns
 
 
-def run(opts, env=None, which=shutil.which, build=None, tmux=None, now_ms=None):
+def run(opts, env=None, which=shutil.which, build=None, tmux=None, now_ms=None, version=None):
     """Opens the popup and moves the tmux client to the chosen session. The exit code is for the mod."""
     env = os.environ if env is None else env
     build = build or index_live.build
@@ -471,6 +490,13 @@ def run(opts, env=None, which=shutil.which, build=None, tmux=None, now_ms=None):
         return EXIT_NO_TMUX
     if which("fzf") is None:
         print("No fzf: the floating window is drawn by it", file=sys.stderr)
+        return EXIT_NO_FZF
+    # An fzf that would refuse the window's options is not even tried: a popup that opens only to
+    # close at once would flash on every opening
+    found = (version or fzf_version)()
+    if found is not None and found < MIN_FZF:
+        needed = ".".join(map(str, MIN_FZF))
+        print(f"fzf {needed} or newer draws the floating window; this one is {found[0]}.{found[1]}", file=sys.stderr)
         return EXIT_NO_FZF
     work = tempfile.mkdtemp(prefix="session-board-")
     try:
