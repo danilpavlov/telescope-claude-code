@@ -1,6 +1,6 @@
 {
   "name": "session-board",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A floating board of the Claude Code sessions running right now: who works, who waits for you, what was done - and a jump to the tmux window of the one you pick.",
   "author": {
     "name": "Daniil Pavlov",
@@ -15,8 +15,8 @@
       "default": 10
     }
   },
-  "homepage": "https://github.com/danilpavlov/claude-session-board",
-  "repository": "https://github.com/danilpavlov/claude-session-board",
+  "homepage": "https://github.com/danilpavlov/telescope-claude-code",
+  "repository": "https://github.com/danilpavlov/telescope-claude-code",
   "license": "MIT",
   "keywords": [
     "sessions",

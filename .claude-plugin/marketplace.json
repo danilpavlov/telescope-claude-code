@@ -1,10 +1,10 @@
 {
-  "name": "claude-session-board",
+  "name": "telescope-claude-code",
   "owner": {
     "name": "Daniil Pavlov"
   },
   "metadata": {
-    "description": "session-board: a floating board of the Claude Code sessions running right now."
+    "description": "telescope-claude-code: session-board, a floating picker of the Claude Code sessions running right now."
   },
   "plugins": [
     {
