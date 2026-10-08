@@ -1,4 +1,8 @@
-# telescope-claude-code
+<p align="center">
+  <img src="assets/logo.png" alt="The Claude spark looking through a telescope" width="200">
+</p>
+
+<h1 align="center">telescope-claude-code</h1>
 
 A mod for [Claude Code](https://claude.com/claude-code): a floating window with the sessions that are
 running right now - who works, who waits for you, what each has done - and a jump to the tmux window
