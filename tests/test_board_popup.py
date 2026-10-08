@@ -20,6 +20,7 @@ def _no_real_programs(*args, **kwargs):
 # fails here instead of opening a window on the person's screen
 board_popup.launch_fzf = _no_real_programs
 board_popup.call_tmux = _no_real_programs
+board_popup.fzf_version = _no_real_programs
 
 MINUTE = 60_000
 HOUR = 60 * MINUTE
@@ -473,7 +474,7 @@ class RunTest(unittest.TestCase):
         self.tmux_calls = []
         self.popups = []
 
-    def run_popup(self, picked=(0, "work\n", ""), env=None, has_fzf=True, sessions=ALL, popup_code=0):
+    def run_popup(self, picked=(0, "work\n", ""), env=None, has_fzf=True, sessions=ALL, popup_code=0, version=(0, 74)):
         def tmux(argv):
             if argv[1] != "display-popup":
                 self.tmux_calls.append(argv)
@@ -493,7 +494,28 @@ class RunTest(unittest.TestCase):
             build=lambda config_dir: {"sessions": sessions, "skipped": 0},
             tmux=tmux,
             now_ms=lambda: NOW,
+            version=lambda: version,
         )
+
+    def test_an_fzf_older_than_the_window_needs_opens_no_popup_at_all(self):
+        # A popup that opens only for fzf to refuse its options would flash on every opening
+        self.assertEqual(self.run_popup(version=(0, 70)), board_popup.EXIT_NO_FZF)
+        self.assertEqual(self.run_popup(version=(0, 44)), board_popup.EXIT_NO_FZF)
+        self.assertEqual(self.popups, [])
+        self.assertEqual(self.tmux_calls, [])
+
+    def test_the_oldest_fzf_that_will_do_opens_the_window_and_so_does_one_that_does_not_say(self):
+        self.assertEqual(self.run_popup(version=(0, 71)), 0)
+        self.assertEqual(self.run_popup(version=(1, 0)), 0)
+        self.assertEqual(self.run_popup(version=None), 0)
+        self.assertEqual(len(self.popups), 3)
+
+    def test_the_version_is_read_from_what_fzf_prints(self):
+        self.assertEqual(board_popup.parse_fzf_version("0.74.4 (a140afeb)\n"), (0, 74))
+        self.assertEqual(board_popup.parse_fzf_version("0.44.1 (debian)"), (0, 44))
+        self.assertEqual(board_popup.parse_fzf_version("1.2"), (1, 2))
+        self.assertIsNone(board_popup.parse_fzf_version("fzf: not a version"))
+        self.assertIsNone(board_popup.parse_fzf_version(""))
 
     def test_a_chosen_session_is_gone_to(self):
         self.assertEqual(self.run_popup(), 0)
