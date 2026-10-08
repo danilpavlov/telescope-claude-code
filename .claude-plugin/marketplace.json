@@ -1,0 +1,16 @@
+{
+  "name": "claude-session-board",
+  "owner": {
+    "name": "Daniil Pavlov"
+  },
+  "metadata": {
+    "description": "session-board: a floating board of the Claude Code sessions running right now."
+  },
+  "plugins": [
+    {
+      "name": "session-board",
+      "source": "./",
+      "description": "A floating board of the Claude Code sessions running right now: who works, who waits for you, what was done - and a jump to the tmux window of the one you pick."
+    }
+  ]
+}
