@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="assets/logo.png" alt="The Claude spark looking through a telescope" width="200">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo.png">
+    <img src="assets/logo-light.png" alt="The Claude spark looking through a telescope" width="200">
+  </picture>
 </p>
 
 <h1 align="center">telescope-claude-code</h1>
