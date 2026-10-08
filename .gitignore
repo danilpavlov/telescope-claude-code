@@ -1,0 +1,3 @@
+__pycache__/
+# The engine lays its own type declarations here when it loads the mod
+.claude-plugin/types/
